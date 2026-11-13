@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2
+
+- Use the white ATMOCE wordmark on the coral gradient as the integration icon.
+- Keep the plain wordmark for wide logos and remove the obsolete emblem artwork.
+
 ## 0.1.1
 
 - Use the original Atmoce emblem and wordmark, with light and dark theme assets.

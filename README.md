@@ -127,4 +127,4 @@ python3.14 -m venv .venv
 .venv/bin/python scripts/build_release.py
 ```
 
-The included artwork comes from [Atmoce's official website](https://www.atmoce.com/en); [source and export details](custom_components/atmoce_mqtt/brand/SOURCE.md). This is an independent custom integration.
+The included artwork comes from materials published by Atmoce; [source and export details](custom_components/atmoce_mqtt/brand/SOURCE.md). This is an independent custom integration.
