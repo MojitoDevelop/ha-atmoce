@@ -37,6 +37,8 @@ Każda bramka tworzy urządzenie `Atmoce <SN>`, z encjami po angielsku. Dostępn
 
 Aktualizacja zachowuje identyfikatory encji i historię. Dotychczasowe identyfikatory zakończone na `_code` nadal działają. W automatyzacjach tryby pracy mają stany `self_consumption`, `time_of_use` i `remote_control`.
 
+Ikony rozróżniają produkcję PV, import i eksport z sieci, energie magazynu, limity oraz nastawy. Ikony statusów i sterowania zmieniają się wraz ze stanem, a ikona SOC odzwierciedla poziom naładowania. Ikony ustawione ręcznie w HA mają pierwszeństwo.
+
 W panelu **Energia** wybierz całkowite liczniki produkcji PV, importu i eksportu oraz ładowania i rozładowania magazynu. Pełna lista encji znajduje się w [dokumentacji angielskiej](README.md#entities).
 
 Domyślny czas ważności danych to **180 sekund**, zmieniany przez **Konfiguruj**. Po utracie MQTT lub wygaśnięciu telemetrii odczyty stają się niedostępne. Brakujące wartości pozostają nieznane.

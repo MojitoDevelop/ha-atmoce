@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4
+
+- Give solar, grid import/export, battery energy, power limits and settings entities icons that match their purpose.
+- Change the battery status, operating mode, plant status and requested control icons with their current state.
+- Keep Home Assistant's battery level icon for state of charge and add a battery control action icon.
+
 ## 0.1.3
 
 - Show Battery status, Battery operating mode and Plant status as lowercase English text instead of numeric codes.

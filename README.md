@@ -50,6 +50,8 @@ Setup listens for gateways for 10 seconds and lets you select an installation. I
 
 Each gateway appears as a device named `Atmoce <SN>`. Entity names are in English. Home Assistant generates entity IDs according to your naming preferences.
 
+Icons distinguish solar generation, grid import/export, battery energy, limits and settings. Status and battery control icons follow their current state; the state of charge icon follows the battery level. Icons selected manually in Home Assistant take precedence.
+
 | Entities | Unit |
 | --- | --- |
 | Solar power, Grid power, Battery power | kW |

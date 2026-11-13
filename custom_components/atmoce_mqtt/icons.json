@@ -1,0 +1,105 @@
+{
+  "entity": {
+    "sensor": {
+      "solar_power": {
+        "default": "mdi:solar-power-variant"
+      },
+      "grid_power": {
+        "default": "mdi:transmission-tower"
+      },
+      "battery_power": {
+        "default": "mdi:battery-sync"
+      },
+      "charge_power_limit": {
+        "default": "mdi:battery-arrow-down"
+      },
+      "discharge_power_limit": {
+        "default": "mdi:battery-arrow-up"
+      },
+      "solar_energy_today": {
+        "default": "mdi:solar-power"
+      },
+      "solar_energy_total": {
+        "default": "mdi:solar-panel-large"
+      },
+      "grid_export_today": {
+        "default": "mdi:transmission-tower-export"
+      },
+      "grid_import_today": {
+        "default": "mdi:transmission-tower-import"
+      },
+      "grid_export_total": {
+        "default": "mdi:home-export-outline"
+      },
+      "grid_import_total": {
+        "default": "mdi:home-import-outline"
+      },
+      "battery_charged_today": {
+        "default": "mdi:battery-plus-outline"
+      },
+      "battery_discharged_today": {
+        "default": "mdi:battery-minus-outline"
+      },
+      "battery_charged_total": {
+        "default": "mdi:battery-plus"
+      },
+      "battery_discharged_total": {
+        "default": "mdi:battery-minus"
+      },
+      "battery_status": {
+        "default": "mdi:battery-unknown",
+        "state": {
+          "charging": "mdi:battery-charging",
+          "discharging": "mdi:battery-arrow-up",
+          "idle": "mdi:battery"
+        }
+      },
+      "battery_mode": {
+        "default": "mdi:battery-sync-outline",
+        "state": {
+          "self_consumption": "mdi:home-lightning-bolt",
+          "time_of_use": "mdi:clock-outline",
+          "remote_control": "mdi:remote"
+        }
+      },
+      "plant_status": {
+        "default": "mdi:solar-panel",
+        "state": {
+          "normal": "mdi:check-circle-outline",
+          "fault": "mdi:alert-circle-outline"
+        }
+      },
+      "reported_forced_power": {
+        "default": "mdi:flash-outline"
+      },
+      "reported_target_soc": {
+        "default": "mdi:bullseye-arrow"
+      },
+      "reported_forced_control": {
+        "default": "mdi:power-settings"
+      }
+    },
+    "number": {
+      "requested_power": {
+        "default": "mdi:lightning-bolt"
+      },
+      "target_soc": {
+        "default": "mdi:target"
+      }
+    },
+    "select": {
+      "requested_battery_control": {
+        "default": "mdi:tune",
+        "state": {
+          "charge": "mdi:battery-charging",
+          "discharge": "mdi:battery-arrow-up",
+          "automatic": "mdi:autorenew",
+          "pause": "mdi:pause-circle-outline"
+        }
+      }
+    }
+  },
+  "services": {
+    "set_battery_control": "mdi:tune"
+  }
+}
