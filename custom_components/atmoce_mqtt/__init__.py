@@ -5,7 +5,9 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers import entity_registry as er
 
+from .const import DOMAIN
 from .coordinator import AtmoceCoordinator
 
 type AtmoceConfigEntry = ConfigEntry[AtmoceCoordinator]
@@ -17,6 +19,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: AtmoceConfigEntry) -> bo
     if not await mqtt.async_wait_for_mqtt_client(hass):
         raise ConfigEntryNotReady("The Home Assistant MQTT client is not available")
     coordinator = AtmoceCoordinator(hass, entry)
+    registry = er.async_get(hass)
+    if old_entity_id := registry.async_get_entity_id(
+        Platform.SENSOR, DOMAIN, f"{coordinator.serial}_systemTime"
+    ):
+        if registry.async_get(old_entity_id).config_entry_id == entry.entry_id:
+            registry.async_remove(old_entity_id)
     entry.runtime_data = coordinator
     entry.async_on_unload(coordinator.async_stop)
     entry.async_on_unload(entry.add_update_listener(_async_options_updated))

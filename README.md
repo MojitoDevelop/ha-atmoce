@@ -1,81 +1,86 @@
-# Atmoce MQTT for Home Assistant
+# Atmoce for Home Assistant
 
 [![Add to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=MojitoDevelop&repository=ha-atmoce&category=integration)
+[![Latest release](https://img.shields.io/github/v/release/MojitoDevelop/ha-atmoce)](https://github.com/MojitoDevelop/ha-atmoce/releases)
 
-Local solar and battery monitoring and explicit battery control, installable through HACS. Uses Home Assistant's MQTT connection and the **working Node-RED command dialect** (`0 / 1 / 2 / 99`). No cloud account is needed.
+Local monitoring and battery control for Atmoce solar and storage systems. Connect your gateway to Home Assistant through MQTT to track solar generation, grid import and export, battery energy and state of charge, and control charging and discharging.
 
 [Instrukcja po polsku](README.pl.md)
 
+## Features
+
+- Solar, grid and battery power, battery state of charge and current power limits.
+- Daily and lifetime energy counters compatible with Home Assistant's Energy dashboard.
+- Battery charging, discharging, automatic operation and pause, with configurable power and target state of charge.
+- Gateway discovery, selection between multiple installations and manual serial number entry.
+- Setup through Home Assistant's existing MQTT connection, automatic configuration of a running official Mosquitto app, or manual broker credentials.
+- English entity names, availability monitoring and diagnostic data.
+- Local communication without an Atmoce cloud account.
+
 ## Requirements
 
-- Home Assistant **2026.10.0 or newer**; tested on **2026.10.0 and 2026.11.1 / Python 3.14**.
-- A broker reachable by Home Assistant, with the Atmoce gateway configured to publish to it.
-- The observed telemetry format with `systemTime`, `gridActivePower` and power values in **kW**. The older PDF's power units and field names differ; this integration does not silently guess between dialects.
+- **Home Assistant 2026.10.0 or newer.** Tested on 2026.10.0 and 2026.11.1.
+- HACS on HA 2026.10, or the built-in Marketplace on HA 2026.11+.
+- An Atmoce gateway publishing telemetry to the same MQTT broker as Home Assistant.
 
-The integration domain is `atmoce_mqtt`, so it does not overwrite the separate Modbus integration using `atmoce`.
+Supported telemetry uses `systemTime`, `gridActivePower`, power values in kW and energy counters in kWh. Firmware using a different payload format may need additional support.
 
-## Install using HACS / Marketplace
+## Installation
 
-Use the button above to open this custom repository and select **Download**. It works with HACS on HA 2026.10 and the built-in Marketplace on HA 2026.11+. [About My Home Assistant links](https://www.hacs.xyz/docs/use/my/).
+Click **Add to HACS** above and select **Download**, then restart Home Assistant.
 
-To add it manually:
+To add the repository manually:
 
-1. In HACS / Marketplace, open **⋮ → Custom repositories**.
-2. Add `https://github.com/MojitoDevelop/ha-atmoce` with type **Integration**.
-3. Download **Atmoce MQTT** and restart Home Assistant.
-4. Go to **Settings → Devices & services → Add integration → Atmoce MQTT**.
+1. Open HACS / Marketplace → **⋮ → Custom repositories**.
+2. Add `https://github.com/MojitoDevelop/ha-atmoce`, type **Integration**.
+3. Download **Atmoce** and restart Home Assistant.
+4. Open **Settings → Devices & services → Add integration → Atmoce**.
 
-This repository is prepared for HACS custom repositories. Inclusion in HACS's default catalog is a separate review process.
+For a manual installation, extract the release's `atmoce_mqtt.zip` into `/config/custom_components/atmoce_mqtt/`, then restart Home Assistant. The ZIP contains `manifest.json` at its root.
 
-Manual installation: copy `custom_components/atmoce_mqtt` to `/config/custom_components/atmoce_mqtt` and restart HA.
+## Configuration
 
-## Setup
+The setup form reuses the MQTT connection already configured in Home Assistant, including its stored credentials.
 
-An existing HA MQTT connection is reused with its stored credentials. When no MQTT connection is available, the setup form offers:
+When MQTT is not configured, choose automatic setup to use a running official Mosquitto app and its managed credentials, or enter a broker address, port, username and password. Verified TLS is supported. Custom certificates and WebSocket connections can be configured in Home Assistant's native MQTT form. Automatic setup does not install a broker or change the gateway's MQTT settings.
 
-- **Automatic:** use a running official Home Assistant Mosquitto app. Home Assistant's own MQTT flow obtains its managed credentials and validates the connection. The integration does not install or start an app itself.
-- **Manual:** enter host, port, username, password and optional verified TLS. HA's official MQTT flow validates and stores the credentials. Advanced certificates and WebSocket connections can be configured in the native MQTT form linked from setup.
-- **Use configured MQTT:** finish native MQTT setup in another dialog and resume Atmoce setup.
+Setup listens for gateways for 10 seconds and lets you select an installation. If your gateway is not listed, enter its **serial number (SN)** manually. You can add multiple gateways. Adding an integration does not send battery commands.
 
-Passwords are not copied into the Atmoce config entry or diagnostics. HA supports a shared MQTT connection: changing a broker for other MQTT integrations is done in HA's MQTT settings. Atmoce must use that same broker; discovering a broker does not reconfigure the gateway.
+## Entities
 
-Setup listens for 10 seconds on `atmoce/gateway/+/monitor` and offers a list of gateways not already configured. If none are found, enter the gateway **SN** manually. Manual setup can be completed while the gateway is offline; sensors wait for data. Incoming MQTT telemetry can also show an automatic discovery confirmation. Multiple gateways are supported, one entry per SN.
+Each gateway appears as a device named `Atmoce <SN>`. Entity names are in English. Home Assistant generates entity IDs according to your naming preferences.
 
-## Monitoring entities
-
-Entity names are in English, including when HA's language is Polish. IDs are generated by HA using the device name and your entity naming preferences; existing entities are never renamed. The device is initially named `Atmoce <SN>`.
-
-| Entity name | Unit / statistics |
+| Entities | Unit |
 | --- | --- |
-| Solar power, Grid power, Battery power | kW, power, measurement |
-| Charge power limit, Discharge power limit | kW, power, measurement |
-| Battery state of charge | %, battery, measurement |
-| Solar energy today | kWh, energy, total increasing |
-| Solar energy total | kWh, energy, total |
-| Grid import today / total | kWh, energy, total increasing / total |
-| Grid export today / total | kWh, energy, total increasing / total |
-| Battery charged today / total | kWh, energy, total increasing / total |
-| Battery discharged today / total | kWh, energy, total increasing / total |
-| Battery status code, Battery operating mode code, Plant status code | Raw reported diagnostic codes |
-| Device time | UTC timestamp from `systemTime` |
+| Solar power, Grid power, Battery power | kW |
+| Charge power limit, Discharge power limit | kW |
+| Battery state of charge | % |
+| Solar energy today / total | kWh |
+| Grid import today / total | kWh |
+| Grid export today / total | kWh |
+| Battery charged today / total | kWh |
+| Battery discharged today / total | kWh |
+| Battery status code, Battery operating mode code, Plant status code | Reported diagnostic codes |
 
-Use lifetime solar, grid import/export and battery charge/discharge energy sensors in HA's **Energy dashboard**. Lifetime counters use `total` without `last_reset`; daily counters use `total_increasing`. Signed power is preserved as received. The direction of a signed power value is not inferred from potentially conflicting status documentation.
+For the **Energy dashboard**, select the lifetime solar, grid import/export and battery charge/discharge counters. Power sensors use the `measurement` state class, daily energy counters use `total_increasing`, and lifetime counters use `total`.
 
-Missing or invalid fields become `unknown`, never zero. A broker disconnect or telemetry expiry makes monitoring entities `unavailable`; reconnecting requires a fresh sample. The default expiry is **180 seconds**, adjustable under **Configure** (30–3600 seconds). Old retained samples and samples from far in the future are rejected. `systemLocalTime` is not interpreted as UTC.
+Monitoring entities become unavailable when the MQTT connection is lost or telemetry expires. The default expiry is **180 seconds**; change it under **Configure** to match your gateway's publishing interval. Missing or invalid values remain unknown.
 
-## Battery controls
-
-**Before using these controls on an installation with the existing Node-RED controller, disable its Atmoce command output or otherwise give one controller ownership.** The Node-RED flow can overwrite a command from HA, and changes made outside HA are not acknowledged by this MQTT protocol. Telemetry can be shared by both systems.
+## Battery control
 
 1. Set **Requested forced power** in kW.
 2. Set **Requested target state of charge** in whole percent.
 3. Choose **Charge**, **Discharge**, **Automatic** or **Pause** in **Requested battery control**.
 
-The two number entities stage arguments in HA. Changing them does not send a command; select a control option again to apply them. Staged arguments survive a restart. The command select starts `unknown` after a restart, and startup/reload never replays a command.
+Changing the number entities prepares the parameters in Home Assistant. Select a control option to apply them. Parameters are restored after a restart; battery commands are not replayed.
 
-Charge and discharge require fresh telemetry, valid SOC and a positive requested power within the current reported `chargeMaxPower` or `dischargeMaxPower`. Excess power is rejected, not silently accepted. If the requested SOC is already reached, the command returns to Automatic, matching the flow. Automatic and Pause remain available with stale gateway telemetry as long as MQTT is connected. Commands use **QoS 1, retain false** and are not retried by the integration. MQTT QoS 1 itself permits duplicate delivery.
+Charge and discharge require fresh telemetry, valid battery SOC and power within the gateway's current reported limit. An already reached target returns the battery to Automatic. Automatic and Pause remain usable with stale telemetry while MQTT is connected.
 
-For an automation, send all arguments together through **Atmoce MQTT: Set battery control**. Select the actual command entity in your installation:
+Use one active controller to send commands to a gateway, so other automations do not overwrite your settings.
+
+### Automations
+
+The **Atmoce: Set battery control** action sends mode, power and target SOC together:
 
 ```yaml
 action: atmoce_mqtt.set_battery_control
@@ -87,38 +92,31 @@ data:
   target_soc: 80
 ```
 
-For `automatic` and `pause`, power and target SOC are ignored. For charge/discharge, omitted parameters use the staged number values. The service accepts entity, device or area targets through HA's normal entity-service targeting.
+Replace the example entity ID with the command entity from your device. Modes are `charge`, `discharge`, `automatic` and `pause`. For charging and discharging, omitted parameters use the prepared number values. Automatic and Pause ignore power and target SOC.
 
-### Exact wire commands
+### Requested settings and device readback
 
-Topic: `atmoce/gateway/<SN>/config`. Values below come from the supplied working Node-RED flow, **not the incorrect enum in the MQTT PDF**.
+**Requested…** entities show commands prepared or sent by Home Assistant. They are not a confirmation that the gateway applied them. Actual mode/status codes and power limits come from the gateway's telemetry.
 
-```json
-{"batteryForcedControl":0,"batteryForcedMode":0,"batteryForcedTargetSOC":80,"batteryForcedControlPower":3.5}
-{"batteryForcedControl":1,"batteryForcedMode":0,"batteryForcedTargetSOC":20,"batteryForcedControlPower":2.1}
-{"batteryForcedControl":2}
-{"batteryForcedControl":99}
-```
+The documented MQTT interface does not provide a separate settings query or acknowledgement. Optional **Reported forced power**, **Reported target state of charge** and **Reported forced control code** sensors are disabled by default. They provide readback only when the gateway firmware includes those values in its telemetry. Otherwise they remain unknown.
 
-Only the demonstrated SOC-based commands are implemented. Duration-based control, standing policy and reserve limits are not exposed as writable MQTT settings without a verified command format.
+## Releases and updates
 
-## Reading settings: protocol limitation
+Releases are numbered **vMAJOR.MINOR.PATCH**, for example **v0.1.1**. Each tag matches the version in the integration manifest. Select a release in HACS / Marketplace to install or update it, then restart Home Assistant.
 
-The manufacturer's [Gateway MQTT Protocol Interface Description V1.0.0, 2025-02-25](https://api.library.loxone.com/downloader/file/2323/Atmoce%2520Gateway%2520MQTT_Protocol%2520Interface%2520Description_en.pdf), sections 3 and 4, describes `metadata`, `monitor` and `config`. It supplies neither a settings-query request nor a distinct settings-response/acknowledgement topic. The supplied real monitor payload contains `batteryMode`, `batteryStatus` and the power limits, but no forced power or target SOC readback.
+Each release includes installation files in `atmoce_mqtt.zip`, a SHA-256 checksum and [release notes](CHANGELOG.md). New versions are published automatically after the tests, Hassfest and HACS validation pass. To publish a new version, update the manifest version and add a matching changelog entry, then push to `main`. Existing releases are not overwritten.
 
-Consequently, **requested settings are local intent, not confirmed device settings**. The select exposes the last sent command and timestamp. Actual operating mode/status codes and power limits come exclusively from monitor telemetry. The integration never subscribes to `/config` as readback: a broker would echo its own commands to it, which is not a device confirmation.
+## Troubleshooting
 
-Three optional sensors are disabled by default: **Reported forced power**, **Reported target state of charge**, and **Reported forced control code**. Enable these only if your firmware actually includes the corresponding `batteryForcedControlPower`, `batteryForcedTargetSOC` and `batteryForcedControl` fields in `/monitor`. Such extensions are not established by the supplied sample or PDF. Absent fields stay `unknown`; there is no invented read request.
+- **Gateway not found:** check that the gateway and HA use the same broker. A gateway publishing less often than every 10 seconds may require manual SN entry.
+- **Sensors unavailable:** check the MQTT connection, gateway clock, publishing interval and telemetry expiry setting.
+- **Command rejected:** inspect current SOC, power limit and telemetry freshness. Unknown power limits are not replaced with an assumed rating.
+- **Settings change unexpectedly:** check for other controllers sending commands to the gateway.
+- **MQTT setup already in progress:** finish native MQTT setup, then return and choose **Use configured MQTT**.
 
-## Troubleshooting and validation
+The integration is tested against the real Home Assistant core with a simulated MQTT connection. Physical device commissioning remains to be confirmed. Start by checking the reported readings, then verify battery control with a modest power setting.
 
-- Nothing discovered: confirm that HA's MQTT integration is connected to the same broker as the gateway. Listen to `atmoce/gateway/+/monitor` using HA's MQTT tools, or enter the SN manually. A scan can miss a gateway that publishes less often than every 10 seconds.
-- Sensors unavailable: inspect the gateway publishing interval, clock and expiry setting. A retained message from an hour ago does not make the gateway online.
-- Command rejected: check current SOC, power limit and telemetry freshness. A missing limit is not replaced with a guessed battery rating.
-- Command overwritten: inspect the existing Node-RED Atmoce controller and other writers to `/config`.
-- MQTT setup already in progress: finish HA's native MQTT flow, then resume with **Use configured MQTT**. Configure custom TLS certificates in native MQTT settings.
-
-The project includes tests against HA 2026.10.0 and 2026.11.1 for setup, English names, statistics, selection of discovered gateways, duplicate serials, native MQTT setup, stale/invalid telemetry, command bounds, exact wire payloads and unload/reload. MQTT network access is mocked; **this release has not been commissioned on physical hardware**. Check monitoring first, then verify a modest charge/discharge command and Automatic on your installation.
+## Development
 
 ```bash
 python3.14 -m venv .venv
@@ -126,6 +124,7 @@ python3.14 -m venv .venv
 .venv/bin/python scripts/test.py
 .venv/bin/ruff check .
 .venv/bin/ruff format --check .
+.venv/bin/python scripts/build_release.py
 ```
 
-CI also runs Home Assistant's Hassfest and HACS validation. The bundled `brand/` icon is an original project icon, not an official Atmoce logo. This is an independent custom integration; it does not claim an official HA Integration Quality Scale tier.
+The included artwork comes from [Atmoce's official website](https://www.atmoce.com/en); [source and export details](custom_components/atmoce_mqtt/brand/SOURCE.md). This is an independent custom integration.

@@ -1,34 +1,60 @@
-# Atmoce MQTT — instalacja przez HACS
+# Atmoce dla Home Assistant
 
 [![Dodaj do HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=MojitoDevelop&repository=ha-atmoce&category=integration)
+[![Najnowsze wydanie](https://img.shields.io/github/v/release/MojitoDevelop/ha-atmoce)](https://github.com/MojitoDevelop/ha-atmoce/releases)
 
-Integracja lokalna dla **Home Assistant 2026.10+**, z encjami po angielsku. [Pełna dokumentacja](README.md).
+Lokalna integracja systemów fotowoltaicznych i magazynów energii Atmoce z Home Assistant. Umożliwia odczyt produkcji PV, wymiany energii z siecią, stanu i przepływów magazynu oraz sterowanie ładowaniem i rozładowaniem przez MQTT. Nie wymaga konta w chmurze Atmoce.
 
-Kliknij przycisk powyżej i wybierz pobranie integracji. Link działa z HACS w HA 2026.10 oraz z wbudowanym Marketplace w HA 2026.11+.
+[Full documentation in English](README.md)
 
-Dodawanie ręczne:
+## Możliwości
 
-1. W HACS / Marketplace wybierz **⋮ → Repozytoria niestandardowe**.
-2. Dodaj `https://github.com/MojitoDevelop/ha-atmoce`, typ **Integracja**.
-3. Pobierz **Atmoce MQTT** i uruchom ponownie HA.
-4. Wybierz **Ustawienia → Urządzenia i usługi → Dodaj integrację → Atmoce MQTT**.
-5. Istniejące MQTT zostanie użyte automatycznie. Jeśli go brakuje, wybierz działający oficjalny dodatek Mosquitto z HA lub wpisz adres brokera, użytkownika i hasło. Dane logowania przechowuje oficjalna integracja MQTT. Automatyczna konfiguracja nie instaluje dodatku Mosquitto; można go zainstalować przez podlinkowany formularz HA.
-6. Wybierz instalację znalezioną podczas 10-sekundowego nasłuchu. Jeżeli jej nie ma, wpisz SN bramki. Samo dodanie integracji nie wysyła komend.
+- Moc PV, sieci i magazynu, SOC oraz aktualne limity mocy.
+- Dobowe i całkowite liczniki energii zgodne z panelem Energia.
+- Ładowanie, rozładowanie, tryb automatyczny i pauza, z nastawą mocy oraz docelowego SOC.
+- Wykrywanie bramek, wybór instalacji lub ręczne wpisanie SN.
+- Wykorzystanie MQTT skonfigurowanego w HA, automatyczna konfiguracja działającego Mosquitto albo ręczne podanie brokera i danych logowania.
+- Angielskie nazwy encji, kontrola dostępności i dane diagnostyczne.
 
-Dostępne są odczyty mocy PV, sieci i magazynu, SOC, limity mocy, dobowe i całkowite energie oraz kody stanu i trybu. Czujniki całkowitej energii można dodać do panelu Energia.
+## Wymagania i instalacja
 
-## Nastawy magazynu
+Wymagany jest **Home Assistant 2026.10.0 lub nowszy** oraz bramka Atmoce publikująca dane do tego samego brokera MQTT co HA. Integracja została przetestowana na HA 2026.10.0 i 2026.11.1.
 
-Wpisz **Requested forced power** w kW i **Requested target state of charge** w %, następnie wybierz **Charge**, **Discharge**, **Automatic** albo **Pause** w **Requested battery control**. Zmiana samych liczb przygotowuje parametry w HA; aby je zastosować, wybierz polecenie. Parametry są zapamiętywane, ale po restarcie nie wysyła się ponownie sterowania.
+1. Kliknij **Dodaj do HACS**, pobierz **Atmoce** i uruchom ponownie HA. Link działa z HACS w HA 2026.10 oraz z Marketplace w HA 2026.11+.
+2. Otwórz **Ustawienia → Urządzenia i usługi → Dodaj integrację → Atmoce**.
+3. Istniejące połączenie MQTT zostanie użyte automatycznie. Jeżeli go brakuje, wybierz działający oficjalny dodatek Mosquitto albo podaj adres brokera, port, użytkownika i hasło. Można włączyć TLS ze sprawdzaniem certyfikatu.
+4. Wybierz instalację znalezioną podczas 10-sekundowego nasłuchu. Jeżeli jej nie ma, wpisz **numer seryjny bramki (SN)**.
 
-Komendy są zgodne z działającym flow Node-RED: `0` = ładuj, `1` = rozładuj, `2` = Auto, `99` = pauza. Wysyłka trafia na `/config`, QoS 1, bez retain. Ładowanie i rozładowanie wymagają świeżej telemetrii oraz mocy nie większej od aktualnego limitu Atmoce. Akcja **Atmoce MQTT: Set battery control** pozwala podać tryb, moc i SOC w jednym wywołaniu automatyzacji.
+Ręczne dodawanie repozytorium w HACS / Marketplace: **⋮ → Repozytoria niestandardowe**, adres `https://github.com/MojitoDevelop/ha-atmoce`, typ **Integracja**.
 
-Przed sterowaniem z HA wyłącz wyjście komend dotychczasowego sterownika Atmoce w Node-RED albo ustal jednego nadawcę. Działający flow może nadpisywać nastawy z HA. Odczyt telemetrii może pozostać wspólny.
+Bez HACS można rozpakować `atmoce_mqtt.zip` z wydania do `/config/custom_components/atmoce_mqtt/`, a następnie ponownie uruchomić HA. Plik `manifest.json` powinien znajdować się bezpośrednio w tym katalogu.
 
-## Odczyt nastaw
+Samo dodanie integracji nie wysyła komend. Automatyczna konfiguracja MQTT nie instaluje brokera i nie zmienia ustawień bramki. Obsługiwana telemetria używa pól `systemTime`, `gridActivePower`, mocy w kW i energii w kWh.
 
-W odnalezionej instrukcji MQTT producenta nie ma opisanego zapytania o nastawy ani osobnego potwierdzenia zapisu. Podany działający `/monitor` raportuje stan, tryb i limity, lecz nie raportuje wymuszonej mocy i docelowego SOC. Dlatego encje **Requested…** pokazują żądanie z HA, a czujniki kodu trybu, kodu stanu i limitów pokazują dane urządzenia. Echo polecenia z `/config` nie jest traktowane jako potwierdzenie.
+## Odczyty i panel Energia
 
-Opcjonalne, domyślnie wyłączone sensory **Reported…** odczytają nastawy wyłącznie wtedy, gdy firmware rzeczywiście doda pola `batteryForced*` do `/monitor`. Nieobecna wartość pozostaje nieznana. Szczegóły i źródło opisano w [pełnej dokumentacji](README.md#reading-settings-protocol-limitation).
+Każda bramka tworzy urządzenie `Atmoce <SN>`, z encjami po angielsku. Dostępne są moce, SOC, limity mocy, dobowe i całkowite energie oraz raportowane kody stanu i trybu.
 
-Domyślne wygaszanie telemetrii: **180 s**, zmiana przez **Konfiguruj**. Testy korzystają z rzeczywistego HA 2026.10.0 oraz 2026.11.1 i symulowanego połączenia MQTT. Uruchomienie na instalacji wymaga weryfikacji fizycznego urządzenia.
+W panelu **Energia** wybierz całkowite liczniki produkcji PV, importu i eksportu oraz ładowania i rozładowania magazynu. Pełna lista encji znajduje się w [dokumentacji angielskiej](README.md#entities).
+
+Domyślny czas ważności danych to **180 sekund**, zmieniany przez **Konfiguruj**. Po utracie MQTT lub wygaśnięciu telemetrii odczyty stają się niedostępne. Brakujące wartości pozostają nieznane.
+
+## Sterowanie magazynem
+
+1. Ustaw **Requested forced power** w kW.
+2. Ustaw **Requested target state of charge** w pełnych procentach.
+3. Wybierz **Charge**, **Discharge**, **Automatic** albo **Pause** w **Requested battery control**.
+
+Zmiana samych liczb przygotowuje parametry w HA. Aby je zastosować, wybierz polecenie. Parametry są zapamiętywane, ale po restarcie sterowanie nie jest wysyłane ponownie.
+
+Ładowanie i rozładowanie wymagają świeżej telemetrii oraz mocy nieprzekraczającej bieżącego limitu urządzenia. Akcja **Atmoce: Set battery control** pozwala podać tryb, moc i SOC w jednym wywołaniu automatyzacji. Dla jednej bramki należy używać jednego aktywnego sterownika, aby polecenia nie były wzajemnie nadpisywane.
+
+Encje **Requested…** pokazują żądania z HA. Raportowane kody trybu, stanu i limity pokazują dane urządzenia. Interfejs MQTT nie opisuje osobnego zapytania o nastawy ani potwierdzenia zapisu. Opcjonalne sensory **Reported…** dostarczą odczyt nastaw wyłącznie wtedy, gdy firmware rzeczywiście publikuje odpowiednie pola w telemetrii; domyślnie są wyłączone.
+
+## Wydania i aktualizacje
+
+Wydania mają numery **vMAJOR.MINOR.PATCH**, np. **v0.1.1**, zgodne z wersją w manifeście integracji. Wybierz wydanie w HACS / Marketplace, zainstaluj aktualizację i uruchom ponownie HA.
+
+Każde wydanie zawiera paczkę `atmoce_mqtt.zip`, sumę SHA-256 oraz [opis zmian](CHANGELOG.md). Nowe wydanie powstaje automatycznie po zmianie numeru wersji, uzupełnieniu changelogu i przejściu testów, Hassfest oraz walidacji HACS.
+
+Działanie na fizycznym urządzeniu wymaga potwierdzenia na instalacji. Zacznij od sprawdzenia odczytów, a potem zweryfikuj sterowanie z niewielką mocą.

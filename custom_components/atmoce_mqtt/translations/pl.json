@@ -1,5 +1,5 @@
 {
-  "title": "Atmoce MQTT",
+  "title": "Atmoce",
   "config": {
     "flow_title": "Atmoce {serial}",
     "step": {
@@ -135,9 +135,6 @@
       "plant_status_code": {
         "name": "Plant status code"
       },
-      "device_time": {
-        "name": "Device time"
-      },
       "reported_forced_power": {
         "name": "Reported forced power"
       },
@@ -171,7 +168,7 @@
   "services": {
     "set_battery_control": {
       "name": "Set battery control",
-      "description": "Send a single battery command using the working Node-RED command dialect. Omitted power and target SOC use the staged number values.",
+      "description": "Set battery operation mode, power and target state of charge. Omitted power and target SOC use the prepared values.",
       "fields": {
         "mode": {
           "name": "Control mode",

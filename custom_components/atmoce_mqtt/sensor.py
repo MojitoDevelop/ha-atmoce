@@ -1,7 +1,6 @@
 """Atmoce sensors with native HA units, device classes and statistics."""
 
 from dataclasses import dataclass
-from datetime import datetime
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -13,7 +12,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfEnergy, UnitOfPower
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.util import dt as dt_util
 
 from .entity import AtmoceEntity
 from .protocol import number
@@ -97,12 +95,6 @@ DESCRIPTIONS = (
             "plantStationStatus": "plant_status_code",
         }.items()
     ),
-    AtmoceSensorDescription(
-        key="systemTime",
-        translation_key="device_time",
-        device_class=SensorDeviceClass.TIMESTAMP,
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
     # These are explicitly optional firmware extensions, not command-topic echoes.
     AtmoceSensorDescription(
         key="batteryForcedControlPower",
@@ -151,7 +143,7 @@ class AtmoceSensor(AtmoceEntity, SensorEntity):
         self.entity_description = description
 
     @property
-    def native_value(self) -> float | int | datetime | None:
+    def native_value(self) -> float | int | None:
         description = self.entity_description
         value = number(self.coordinator.data.get(description.key))
         if (
@@ -161,9 +153,4 @@ class AtmoceSensor(AtmoceEntity, SensorEntity):
             or (description.integer and not value.is_integer())
         ):
             return None
-        if description.device_class is SensorDeviceClass.TIMESTAMP:
-            try:
-                return dt_util.utc_from_timestamp(value)
-            except ValueError, OverflowError, OSError:
-                return None
         return int(value) if description.integer else value

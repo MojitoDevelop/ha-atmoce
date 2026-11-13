@@ -51,10 +51,7 @@ async def test_monitor_units_statistics_and_device(hass, integration, payload):
         == "total"
     )
     assert hass.states.get(entity_id(hass, "sensor", "batterySOC")).state == "46.0"
-    assert (
-        hass.states.get(entity_id(hass, "sensor", "systemTime")).state
-        == dt_util.utc_from_timestamp(payload["systemTime"]).isoformat()
-    )
+    assert entity_id(hass, "sensor", "systemTime") is None
     identifiers = {
         e.device_id
         for e in er.async_entries_for_config_entry(
@@ -272,3 +269,26 @@ async def test_readback_is_only_taken_from_device_monitor(hass, integration, pay
     assert hass.states.get(readback_id).state == STATE_UNKNOWN
     await feed(hass, dict(payload, batteryForcedTargetSOC=80))
     assert hass.states.get(readback_id).state == "80.0"
+
+
+async def test_upgrade_removes_only_this_gateway_device_time(hass, integration):
+    registry = er.async_get(hass)
+    legacy = registry.async_get_or_create(
+        "sensor",
+        DOMAIN,
+        f"{SERIAL}_systemTime",
+        config_entry=integration,
+        original_name="Device time",
+    )
+    unrelated = registry.async_get_or_create(
+        "sensor",
+        DOMAIN,
+        "OTHER_GATEWAY_systemTime",
+        config_entry=integration,
+        original_name="Other device time",
+    )
+    assert await hass.config_entries.async_reload(integration.entry_id)
+    await hass.async_block_till_done()
+    assert registry.async_get(legacy.entity_id) is None
+    assert registry.async_get(unrelated.entity_id) is not None
+    assert hass.states.get(legacy.entity_id) is None
