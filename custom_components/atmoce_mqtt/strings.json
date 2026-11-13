@@ -30,7 +30,7 @@
       },
       "manual": {
         "title": "Atmoce serial number",
-        "description": "No new gateway was selected. Enter the gateway serial number (SN). Entities will wait for telemetry on atmoce/gateway/<SN>/monitor. Adding a gateway does not send battery commands.",
+        "description": "No new gateway was selected. Enter the gateway serial number (SN). Entities will wait for telemetry on atmoce/gateway/YOUR_SN/monitor. Adding a gateway does not send battery commands.",
         "data": {
           "serial": "Serial number"
         }

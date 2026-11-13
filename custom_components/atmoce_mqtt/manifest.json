@@ -1,4 +1,10 @@
 {
+  "after_dependencies": [
+    "hassio"
+  ],
+  "categories": [
+    "energy.solar_batteries"
+  ],
   "codeowners": [
     "@MojitoDevelop"
   ],

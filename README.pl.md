@@ -1,6 +1,6 @@
 # Atmoce MQTT — instalacja przez HACS
 
-Integracja lokalna dla **Home Assistant 2026.11+**, z encjami po angielsku. [Pełna dokumentacja](README.md).
+Integracja lokalna dla **Home Assistant 2026.10+**, z encjami po angielsku. [Pełna dokumentacja](README.md).
 
 1. W HACS wybierz **⋮ → Repozytoria niestandardowe**.
 2. Dodaj `https://github.com/MojitoDevelop/ha-atmoce`, typ **Integracja**.
@@ -25,4 +25,4 @@ W odnalezionej instrukcji MQTT producenta nie ma opisanego zapytania o nastawy a
 
 Opcjonalne, domyślnie wyłączone sensory **Reported…** odczytają nastawy wyłącznie wtedy, gdy firmware rzeczywiście doda pola `batteryForced*` do `/monitor`. Nieobecna wartość pozostaje nieznana. Szczegóły i źródło opisano w [pełnej dokumentacji](README.md#reading-settings-protocol-limitation).
 
-Domyślne wygaszanie telemetrii: **180 s**, zmiana przez **Konfiguruj**. Testy korzystają z rzeczywistego HA 2026.11.1 i symulowanego połączenia MQTT. Uruchomienie na instalacji wymaga weryfikacji fizycznego urządzenia.
+Domyślne wygaszanie telemetrii: **180 s**, zmiana przez **Konfiguruj**. Testy korzystają z rzeczywistego HA 2026.10.0 oraz 2026.11.1 i symulowanego połączenia MQTT. Uruchomienie na instalacji wymaga weryfikacji fizycznego urządzenia.

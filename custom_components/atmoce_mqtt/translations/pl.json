@@ -30,7 +30,7 @@
       },
       "manual": {
         "title": "Numer seryjny Atmoce",
-        "description": "Wpisz SN bramki. Encje będą oczekiwać na dane z atmoce/gateway/<SN>/monitor. Dodanie integracji nie wysyła sterowania.",
+        "description": "Wpisz SN bramki. Encje będą oczekiwać na dane z atmoce/gateway/YOUR_SN/monitor. Dodanie integracji nie wysyła sterowania.",
         "data": {
           "serial": "Numer seryjny (SN)"
         }

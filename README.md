@@ -6,7 +6,7 @@ Local solar and battery monitoring and explicit battery control, installable thr
 
 ## Requirements
 
-- Home Assistant **2026.11.0 or newer**; tests target **2026.11.1 / Python 3.14**.
+- Home Assistant **2026.10.0 or newer**; tested on **2026.10.0 and 2026.11.1 / Python 3.14**.
 - A broker reachable by Home Assistant, with the Atmoce gateway configured to publish to it.
 - The observed telemetry format with `systemTime`, `gridActivePower` and power values in **kW**. The older PDF's power units and field names differ; this integration does not silently guess between dialects.
 
@@ -112,7 +112,7 @@ Three optional sensors are disabled by default: **Reported forced power**, **Rep
 - Command overwritten: inspect the existing Node-RED Atmoce controller and other writers to `/config`.
 - MQTT setup already in progress: finish HA's native MQTT flow, then resume with **Use configured MQTT**. Configure custom TLS certificates in native MQTT settings.
 
-The project includes tests against the actual HA core for setup, English names, statistics, selection of discovered gateways, duplicate serials, native MQTT setup, stale/invalid telemetry, command bounds, exact wire payloads and unload/reload. MQTT network access is mocked; **this release has not been commissioned on physical hardware**. Check monitoring first, then verify a modest charge/discharge command and Automatic on your installation.
+The project includes tests against HA 2026.10.0 and 2026.11.1 for setup, English names, statistics, selection of discovered gateways, duplicate serials, native MQTT setup, stale/invalid telemetry, command bounds, exact wire payloads and unload/reload. MQTT network access is mocked; **this release has not been commissioned on physical hardware**. Check monitoring first, then verify a modest charge/discharge command and Automatic on your installation.
 
 ```bash
 python3.14 -m venv .venv
