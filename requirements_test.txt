@@ -1,0 +1,8 @@
+homeassistant==2026.11.1
+pytest==9.0.3
+pytest-asyncio==1.4.0
+pytest-socket==0.8.1
+pytest-cov==7.1.0
+ruff==0.17.5
+paho-mqtt==2.1.0
+aiohasupervisor==0.8.1

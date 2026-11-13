@@ -1,0 +1,191 @@
+{
+  "title": "Atmoce MQTT",
+  "config": {
+    "flow_title": "Atmoce {serial}",
+    "step": {
+      "mqtt_setup": {
+        "title": "MQTT connection",
+        "description": "Reuse the MQTT connection already configured in Home Assistant. Automatic setup can use the running official Mosquitto app and its managed credentials. For installation, advanced TLS or an existing setup in progress, [open MQTT configuration](/config/integrations/dashboard/add?domain=mqtt), then return and choose Use configured MQTT. Atmoce must publish to the same broker.",
+        "data": {
+          "method": "Setup method"
+        }
+      },
+      "broker": {
+        "title": "Configure MQTT broker",
+        "description": "These settings are passed to the official Home Assistant MQTT integration, which tests and stores the credentials. This does not change the broker configured in your Atmoce gateway. For TLS, use the matching port (usually 8883).",
+        "data": {
+          "host": "Broker hostname or IP address",
+          "port": "Port",
+          "username": "Username",
+          "password": "Password",
+          "tls": "Use TLS with certificate verification"
+        }
+      },
+      "select_gateway": {
+        "title": "Select an Atmoce gateway",
+        "description": "Select a gateway found on the MQTT broker, or enter its serial number manually.",
+        "data": {
+          "serial": "Gateway"
+        }
+      },
+      "manual": {
+        "title": "Atmoce serial number",
+        "description": "No new gateway was selected. Enter the gateway serial number (SN). Entities will wait for telemetry on atmoce/gateway/<SN>/monitor. Adding a gateway does not send battery commands.",
+        "data": {
+          "serial": "Serial number"
+        }
+      },
+      "confirm": {
+        "title": "Atmoce discovered",
+        "description": "Add Atmoce gateway {serial}? Adding it does not send battery commands."
+      }
+    },
+    "progress": {
+      "discover": "Listening for Atmoce gateways on MQTT (10 seconds)…"
+    },
+    "error": {
+      "invalid_serial": "Use letters, digits, underscores or hyphens (maximum 64 characters).",
+      "mqtt_not_ready": "The Home Assistant MQTT client is not ready. Finish MQTT configuration and try again.",
+      "cannot_connect_mqtt": "Home Assistant could not validate this broker connection. Check the broker, credentials, port and TLS settings.",
+      "automatic_mqtt_unavailable": "No running official Mosquitto app is available, or Home Assistant could not obtain its discovery configuration. Enter the broker manually or open MQTT configuration.",
+      "mqtt_setup_in_progress": "MQTT setup is already in progress. Finish it in Settings → Devices & services, then choose Use configured MQTT."
+    },
+    "abort": {
+      "already_configured": "This Atmoce gateway is already configured.",
+      "invalid_discovery_info": "This message is not valid Atmoce monitor telemetry.",
+      "discovery_in_progress": "A manual Atmoce setup is already in progress."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Telemetry availability",
+        "description": "Power commands require fresh telemetry. A disconnected broker or expired sample makes the monitoring entities unavailable.",
+        "data": {
+          "expire_after": "Telemetry expiry (seconds)"
+        }
+      }
+    }
+  },
+  "selector": {
+    "mqtt_method": {
+      "options": {
+        "automatic": "Use the running Home Assistant Mosquitto broker",
+        "manual": "Enter broker and credentials manually",
+        "existing": "Use configured MQTT"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "solar_power": {
+        "name": "Solar power"
+      },
+      "grid_power": {
+        "name": "Grid power"
+      },
+      "battery_power": {
+        "name": "Battery power"
+      },
+      "charge_power_limit": {
+        "name": "Charge power limit"
+      },
+      "discharge_power_limit": {
+        "name": "Discharge power limit"
+      },
+      "solar_energy_today": {
+        "name": "Solar energy today"
+      },
+      "solar_energy_total": {
+        "name": "Solar energy total"
+      },
+      "grid_export_today": {
+        "name": "Grid export today"
+      },
+      "grid_import_today": {
+        "name": "Grid import today"
+      },
+      "grid_export_total": {
+        "name": "Grid export total"
+      },
+      "grid_import_total": {
+        "name": "Grid import total"
+      },
+      "battery_charged_today": {
+        "name": "Battery charged today"
+      },
+      "battery_discharged_today": {
+        "name": "Battery discharged today"
+      },
+      "battery_charged_total": {
+        "name": "Battery charged total"
+      },
+      "battery_discharged_total": {
+        "name": "Battery discharged total"
+      },
+      "battery_soc": {
+        "name": "Battery state of charge"
+      },
+      "battery_status_code": {
+        "name": "Battery status code"
+      },
+      "battery_mode_code": {
+        "name": "Battery operating mode code"
+      },
+      "plant_status_code": {
+        "name": "Plant status code"
+      },
+      "device_time": {
+        "name": "Device time"
+      },
+      "reported_forced_power": {
+        "name": "Reported forced power"
+      },
+      "reported_target_soc": {
+        "name": "Reported target state of charge"
+      },
+      "reported_forced_control": {
+        "name": "Reported forced control code"
+      }
+    },
+    "number": {
+      "requested_power": {
+        "name": "Requested forced power"
+      },
+      "target_soc": {
+        "name": "Requested target state of charge"
+      }
+    },
+    "select": {
+      "requested_battery_control": {
+        "name": "Requested battery control",
+        "state": {
+          "charge": "Charge",
+          "discharge": "Discharge",
+          "automatic": "Automatic",
+          "pause": "Pause"
+        }
+      }
+    }
+  },
+  "services": {
+    "set_battery_control": {
+      "name": "Set battery control",
+      "description": "Send a single battery command using the working Node-RED command dialect. Omitted power and target SOC use the staged number values.",
+      "fields": {
+        "mode": {
+          "name": "Control mode",
+          "description": "Charge, discharge, automatic or pause."
+        },
+        "power": {
+          "name": "Power",
+          "description": "Power in kW; must not exceed the fresh device limit."
+        },
+        "target_soc": {
+          "name": "Target state of charge",
+          "description": "Whole percentage between 0 and 100."
+        }
+      }
+    }
+  }
+}
