@@ -8,13 +8,14 @@ import pytest
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.translation import async_get_translations
 from homeassistant.util import dt as dt_util
 
 from custom_components.atmoce_mqtt.const import DOMAIN
 from custom_components.atmoce_mqtt.diagnostics import async_get_config_entry_diagnostics
 
 from .conftest import SERIAL, TOPIC
-from .helpers import async_fire_mqtt_message
+from .helpers import TestConfigEntry, async_fire_mqtt_message
 
 
 def entity_id(hass, domain, key):
@@ -59,6 +60,107 @@ async def test_monitor_units_statistics_and_device(hass, integration, payload):
         )
     }
     assert len(identifiers) == 1 and None not in identifiers
+
+
+@pytest.mark.parametrize(
+    "codes,expected",
+    [
+        ((1, 1, 0), ("charging", "self_consumption", "normal")),
+        ((2, 2, 1), ("discharging", "time_of_use", "fault")),
+        ((99, 10, 0), ("idle", "remote_control", "normal")),
+    ],
+)
+async def test_status_codes_become_text(hass, integration, payload, codes, expected):
+    fields = ("batteryStatus", "batteryMode", "plantStationStatus")
+    names = ("Battery status", "Battery operating mode", "Plant status")
+    payload.update(zip(fields, codes, strict=True))
+    await feed(hass, payload)
+    for field, code, value, name in zip(fields, codes, expected, names, strict=True):
+        state = hass.states.get(entity_id(hass, "sensor", field))
+        assert state.state == value
+        assert state.attributes["device_class"] == "enum"
+        assert value in state.attributes["options"]
+        assert state.attributes["raw_code"] == code
+        assert state.attributes["friendly_name"].endswith(name)
+        assert "unit_of_measurement" not in state.attributes
+        assert "state_class" not in state.attributes
+        assert integration.runtime_data.data[field] == code
+
+    # Both HA languages keep the visible states in lowercase English.
+    for language in ("en", "pl"):
+        translations = await async_get_translations(hass, language, "entity", {DOMAIN})
+        for key, value in zip(
+            ("battery_status", "battery_mode", "plant_status"), expected, strict=True
+        ):
+            assert translations[
+                f"component.{DOMAIN}.entity.sensor.{key}.state.{value}"
+            ] == value.replace("_", " ")
+
+
+@pytest.mark.parametrize("code", [None, 3, True, "1", 1.5, -1, float("inf")])
+async def test_unrecognized_status_is_unknown(hass, integration, payload, code):
+    fields = ("batteryStatus", "batteryMode", "plantStationStatus")
+    payload.update(dict.fromkeys(fields, code))
+    await feed(hass, payload)
+    for field in fields:
+        state = hass.states.get(entity_id(hass, "sensor", field))
+        assert state.state == STATE_UNKNOWN
+        if code in (3, 1.5, -1):
+            assert state.attributes["raw_code"] == code
+        else:
+            assert "raw_code" not in state.attributes
+
+    for field in fields:
+        payload.pop(field)
+    await feed(hass, payload)
+    for field in fields:
+        state = hass.states.get(entity_id(hass, "sensor", field))
+        assert state.state == STATE_UNKNOWN
+        assert "raw_code" not in state.attributes
+
+
+async def test_status_upgrade_preserves_existing_entities(hass, mqtt_mock, payload):
+    entry = TestConfigEntry(
+        domain=DOMAIN,
+        unique_id=SERIAL,
+        data={"serial": SERIAL},
+        title=f"Atmoce {SERIAL}",
+    )
+    entry.add_to_hass(hass)
+    registry = er.async_get(hass)
+    previous = []
+    for field, name in (
+        ("batteryStatus", "Battery status code"),
+        ("batteryMode", "Battery operating mode code"),
+        ("plantStationStatus", "Plant status code"),
+    ):
+        previous.append(
+            registry.async_get_or_create(
+                "sensor",
+                DOMAIN,
+                f"{SERIAL}_{field}",
+                config_entry=entry,
+                original_name=name,
+            )
+        )
+    registry.async_update_entity(previous[0].entity_id, name="My battery status")
+
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    await feed(hass, payload)
+    for old, field, value, name in zip(
+        previous,
+        ("batteryStatus", "batteryMode", "plantStationStatus"),
+        ("discharging", "self_consumption", "normal"),
+        ("Battery status", "Battery operating mode", "Plant status"),
+        strict=True,
+    ):
+        current = registry.async_get(old.entity_id)
+        assert entity_id(hass, "sensor", field) == old.entity_id
+        assert current.id == old.id
+        assert current.original_name == name
+        assert hass.states.get(old.entity_id).state == value
+    assert registry.async_get(previous[0].entity_id).name == "My battery status"
 
 
 async def test_malformed_partial_and_nonfinite_data(hass, integration, payload):

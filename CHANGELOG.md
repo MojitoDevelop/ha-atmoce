@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3
+
+- Show Battery status, Battery operating mode and Plant status as lowercase English text instead of numeric codes.
+- Preserve existing entity IDs and history, with the reported status number available as `raw_code`.
+- Leave unsupported or invalid status codes unknown instead of assigning a misleading description.
+
 ## 0.1.2
 
 - Use the white ATMOCE wordmark on the coral gradient as the integration icon.

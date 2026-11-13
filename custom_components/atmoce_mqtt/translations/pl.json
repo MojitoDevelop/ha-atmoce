@@ -126,14 +126,28 @@
       "battery_soc": {
         "name": "Battery state of charge"
       },
-      "battery_status_code": {
-        "name": "Battery status code"
+      "battery_status": {
+        "name": "Battery status",
+        "state": {
+          "charging": "charging",
+          "discharging": "discharging",
+          "idle": "idle"
+        }
       },
-      "battery_mode_code": {
-        "name": "Battery operating mode code"
+      "battery_mode": {
+        "name": "Battery operating mode",
+        "state": {
+          "self_consumption": "self consumption",
+          "time_of_use": "time of use",
+          "remote_control": "remote control"
+        }
       },
-      "plant_status_code": {
-        "name": "Plant status code"
+      "plant_status": {
+        "name": "Plant status",
+        "state": {
+          "normal": "normal",
+          "fault": "fault"
+        }
       },
       "reported_forced_power": {
         "name": "Reported forced power"

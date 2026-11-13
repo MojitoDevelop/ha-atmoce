@@ -1,5 +1,6 @@
 """Atmoce sensors with native HA units, device classes and statistics."""
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 
 from homeassistant.components.sensor import (
@@ -24,6 +25,7 @@ class AtmoceSensorDescription(SensorEntityDescription):
     nonnegative: bool = False
     maximum: float | None = None
     integer: bool = False
+    value_map: Mapping[int, str] | None = None
 
 
 POWER_FIELDS = {
@@ -44,6 +46,15 @@ ENERGY_FIELDS = {
     "dailyBatteryDischarged": "battery_discharged_today",
     "lifetimeBatteryCharged": "battery_charged_total",
     "lifetimeBatteryDischarged": "battery_discharged_total",
+}
+# Telemetry codes differ from the forced-control codes used for commands.
+STATUS_FIELDS = {
+    "batteryStatus": ("battery_status", {1: "charging", 2: "discharging", 99: "idle"}),
+    "batteryMode": (
+        "battery_mode",
+        {1: "self_consumption", 2: "time_of_use", 10: "remote_control"},
+    ),
+    "plantStationStatus": ("plant_status", {0: "normal", 1: "fault"}),
 }
 DESCRIPTIONS = (
     *(
@@ -86,14 +97,13 @@ DESCRIPTIONS = (
         AtmoceSensorDescription(
             key=field,
             translation_key=key,
+            device_class=SensorDeviceClass.ENUM,
+            options=list(value_map.values()),
             entity_category=EntityCategory.DIAGNOSTIC,
             integer=True,
+            value_map=value_map,
         )
-        for field, key in {
-            "batteryStatus": "battery_status_code",
-            "batteryMode": "battery_mode_code",
-            "plantStationStatus": "plant_status_code",
-        }.items()
+        for field, (key, value_map) in STATUS_FIELDS.items()
     ),
     # These are explicitly optional firmware extensions, not command-topic echoes.
     AtmoceSensorDescription(
@@ -143,7 +153,7 @@ class AtmoceSensor(AtmoceEntity, SensorEntity):
         self.entity_description = description
 
     @property
-    def native_value(self) -> float | int | None:
+    def native_value(self) -> float | int | str | None:
         description = self.entity_description
         value = number(self.coordinator.data.get(description.key))
         if (
@@ -153,4 +163,16 @@ class AtmoceSensor(AtmoceEntity, SensorEntity):
             or (description.integer and not value.is_integer())
         ):
             return None
+        if description.value_map is not None:
+            return description.value_map.get(int(value))
         return int(value) if description.integer else value
+
+    @property
+    def extra_state_attributes(self) -> dict[str, float | int] | None:
+        """Keep the reported status code available for diagnostics."""
+        if self.entity_description.value_map is None:
+            return None
+        value = number(self.coordinator.data.get(self.entity_description.key))
+        if value is None:
+            return None
+        return {"raw_code": int(value) if value.is_integer() else value}

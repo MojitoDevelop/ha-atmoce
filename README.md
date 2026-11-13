@@ -60,7 +60,17 @@ Each gateway appears as a device named `Atmoce <SN>`. Entity names are in Englis
 | Grid export today / total | kWh |
 | Battery charged today / total | kWh |
 | Battery discharged today / total | kWh |
-| Battery status code, Battery operating mode code, Plant status code | Reported diagnostic codes |
+| Battery status, Battery operating mode, Plant status | Text status |
+
+Status sensors display lowercase English descriptions:
+
+| Sensor | Reported code → displayed state |
+| --- | --- |
+| Battery status | `1` → `charging`, `2` → `discharging`, `99` → `idle` |
+| Battery operating mode | `1` → `self consumption`, `2` → `time of use`, `10` → `remote control` |
+| Plant status | `0` → `normal`, `1` → `fault` |
+
+Mappings follow the manufacturer's [MQTT protocol](https://api.library.loxone.com/downloader/file/2323/Atmoce%20Gateway%20MQTT_Protocol%20Interface%20Description_en.pdf); operating mode `10` is additionally documented in the [Modbus protocol](https://api.library.loxone.com/downloader/file/2322/Atmoce%20Gateway%20Modbus_Protocol%20Interface%20Description_en.pdf). Unsupported codes remain unknown, with the reported number available in the `raw_code` attribute. Automations use the native states `self_consumption`, `time_of_use` and `remote_control` for operating mode. An update preserves existing entity IDs and history; IDs previously ending in `_code` remain valid.
 
 For the **Energy dashboard**, select the lifetime solar, grid import/export and battery charge/discharge counters. Power sensors use the `measurement` state class, daily energy counters use `total_increasing`, and lifetime counters use `total`.
 
@@ -96,7 +106,7 @@ Replace the example entity ID with the command entity from your device. Modes ar
 
 ### Requested settings and device readback
 
-**Requested…** entities show commands prepared or sent by Home Assistant. They are not a confirmation that the gateway applied them. Actual mode/status codes and power limits come from the gateway's telemetry.
+**Requested…** entities show commands prepared or sent by Home Assistant. They are not a confirmation that the gateway applied them. Actual mode/status descriptions and power limits come from the gateway's telemetry.
 
 The documented MQTT interface does not provide a separate settings query or acknowledgement. Optional **Reported forced power**, **Reported target state of charge** and **Reported forced control code** sensors are disabled by default. They provide readback only when the gateway firmware includes those values in its telemetry. Otherwise they remain unknown.
 

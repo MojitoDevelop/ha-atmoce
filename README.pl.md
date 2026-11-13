@@ -33,7 +33,9 @@ Samo dodanie integracji nie wysyła komend. Automatyczna konfiguracja MQTT nie i
 
 ## Odczyty i panel Energia
 
-Każda bramka tworzy urządzenie `Atmoce <SN>`, z encjami po angielsku. Dostępne są moce, SOC, limity mocy, dobowe i całkowite energie oraz raportowane kody stanu i trybu.
+Każda bramka tworzy urządzenie `Atmoce <SN>`, z encjami po angielsku. Dostępne są moce, SOC, limity mocy, dobowe i całkowite energie oraz opisowe stany i tryby pracy. **Battery status** pokazuje `charging`, `discharging` albo `idle`; **Battery operating mode** — `self consumption`, `time of use` albo `remote control`; **Plant status** — `normal` albo `fault`. Opisy są po angielsku, małymi literami. Nieznany kod pozostawia stan nieznany, a numer jest dostępny w atrybucie `raw_code`.
+
+Aktualizacja zachowuje identyfikatory encji i historię. Dotychczasowe identyfikatory zakończone na `_code` nadal działają. W automatyzacjach tryby pracy mają stany `self_consumption`, `time_of_use` i `remote_control`.
 
 W panelu **Energia** wybierz całkowite liczniki produkcji PV, importu i eksportu oraz ładowania i rozładowania magazynu. Pełna lista encji znajduje się w [dokumentacji angielskiej](README.md#entities).
 
@@ -49,7 +51,7 @@ Zmiana samych liczb przygotowuje parametry w HA. Aby je zastosować, wybierz pol
 
 Ładowanie i rozładowanie wymagają świeżej telemetrii oraz mocy nieprzekraczającej bieżącego limitu urządzenia. Akcja **Atmoce: Set battery control** pozwala podać tryb, moc i SOC w jednym wywołaniu automatyzacji. Dla jednej bramki należy używać jednego aktywnego sterownika, aby polecenia nie były wzajemnie nadpisywane.
 
-Encje **Requested…** pokazują żądania z HA. Raportowane kody trybu, stanu i limity pokazują dane urządzenia. Interfejs MQTT nie opisuje osobnego zapytania o nastawy ani potwierdzenia zapisu. Opcjonalne sensory **Reported…** dostarczą odczyt nastaw wyłącznie wtedy, gdy firmware rzeczywiście publikuje odpowiednie pola w telemetrii; domyślnie są wyłączone.
+Encje **Requested…** pokazują żądania z HA. Opisy trybu, stanu i limity pokazują dane urządzenia. Interfejs MQTT nie opisuje osobnego zapytania o nastawy ani potwierdzenia zapisu. Opcjonalne sensory **Reported…** dostarczą odczyt nastaw wyłącznie wtedy, gdy firmware rzeczywiście publikuje odpowiednie pola w telemetrii; domyślnie są wyłączone.
 
 ## Wydania i aktualizacje
 
