@@ -1,8 +1,14 @@
 # Atmoce MQTT — instalacja przez HACS
 
+[![Dodaj do HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=MojitoDevelop&repository=ha-atmoce&category=integration)
+
 Integracja lokalna dla **Home Assistant 2026.10+**, z encjami po angielsku. [Pełna dokumentacja](README.md).
 
-1. W HACS wybierz **⋮ → Repozytoria niestandardowe**.
+Kliknij przycisk powyżej i wybierz pobranie integracji. Link działa z HACS w HA 2026.10 oraz z wbudowanym Marketplace w HA 2026.11+.
+
+Dodawanie ręczne:
+
+1. W HACS / Marketplace wybierz **⋮ → Repozytoria niestandardowe**.
 2. Dodaj `https://github.com/MojitoDevelop/ha-atmoce`, typ **Integracja**.
 3. Pobierz **Atmoce MQTT** i uruchom ponownie HA.
 4. Wybierz **Ustawienia → Urządzenia i usługi → Dodaj integrację → Atmoce MQTT**.

@@ -1,5 +1,7 @@
 # Atmoce MQTT for Home Assistant
 
+[![Add to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=MojitoDevelop&repository=ha-atmoce&category=integration)
+
 Local solar and battery monitoring and explicit battery control, installable through HACS. Uses Home Assistant's MQTT connection and the **working Node-RED command dialect** (`0 / 1 / 2 / 99`). No cloud account is needed.
 
 [Instrukcja po polsku](README.pl.md)
@@ -12,9 +14,13 @@ Local solar and battery monitoring and explicit battery control, installable thr
 
 The integration domain is `atmoce_mqtt`, so it does not overwrite the separate Modbus integration using `atmoce`.
 
-## Install using HACS
+## Install using HACS / Marketplace
 
-1. In HACS, open **⋮ → Custom repositories**.
+Use the button above to open this custom repository and select **Download**. It works with HACS on HA 2026.10 and the built-in Marketplace on HA 2026.11+. [About My Home Assistant links](https://www.hacs.xyz/docs/use/my/).
+
+To add it manually:
+
+1. In HACS / Marketplace, open **⋮ → Custom repositories**.
 2. Add `https://github.com/MojitoDevelop/ha-atmoce` with type **Integration**.
 3. Download **Atmoce MQTT** and restart Home Assistant.
 4. Go to **Settings → Devices & services → Add integration → Atmoce MQTT**.
